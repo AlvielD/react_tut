@@ -55,6 +55,7 @@ class Game extends React.Component {
       history: [{
         squares: Array(9).fill(null),
         lastMove: null,
+        boldDesc: false,
       }],
       stepNumber: 0,
       xIsNext: true,
@@ -81,6 +82,7 @@ class Game extends React.Component {
         history: history.concat([{
           squares: squares,
           lastMove: i,
+          boldDesc: false,
         }]),
         stepNumber: history.length,
         xIsNext: !this.state.xIsNext,
@@ -95,10 +97,20 @@ class Game extends React.Component {
    * @param {int} step - the number representing the move we want to recover
    */
   jumpTo(step) {
+
+    // Create a copy of the history just making the property "boldDesc"
+    // where we jumped to true.
+    const history = this.state.history
+    history[step].boldDesc = true;
+
+    // Update state to the one we are jumping to
     this.setState({
+      history: history,
       stepNumber: step,
       xIsNext: (step % 2) === 0,
     });
+
+    console.log(this.state)
   }
 
   render() {
@@ -107,13 +119,18 @@ class Game extends React.Component {
     const winner = calculateWinner(current.squares);  // Calculate the winner on the current state
     
     const moves = history.map((step, move) => {
-      const desc = move ?
+      let desc = move ?
         `Go to move #${move} | (${Math.floor(step.lastMove / 3) + 1}, ${step.lastMove % 3 + 1})`:
         `Go to game start`;
       // Add key to the list item se we are able to recover them
       return (
         <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          <button 
+            onClick={() => this.jumpTo(move)}
+            style={{ fontWeight: step.boldDesc ? 'bold':'normal'}}
+          >
+            {desc}
+          </button>
         </li>
       );
     });
