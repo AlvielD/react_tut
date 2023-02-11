@@ -101,6 +101,13 @@ class Game extends React.Component {
     // Create a copy of the history just making the property "boldDesc"
     // where we jumped to true.
     const history = this.state.history
+
+    // Set all the descriptions to not bold
+    history.map(step => {
+      step.boldDesc = false
+    });
+
+    // Bold only the selected one
     history[step].boldDesc = true;
 
     // Update state to the one we are jumping to
