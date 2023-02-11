@@ -2,22 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 
-// The classes need to extend the React.component class
-/*
-class Square extends React.Component {
-  render() {
-    return (
-      <button 
-        className="square"
-        onClick={() => this.props.onClick()}
-      >
-        {this.props.value}
-      </button>
-    );
-  }
-}
-*/
-
 // This is called 'function component': easier way of writing classes
 // that only has a render method.
 function Square(props) {
@@ -40,7 +24,6 @@ class Board extends React.Component {
   }
   
   render() {
- 
     // Return the board to be rendered, plus the status of the match
     return (
       <div>
@@ -77,7 +60,11 @@ class Game extends React.Component {
     };
   }
 
-  // Define the handle for the click event
+  /**
+   * Handles the click event raised when clicking one of the squares of
+   * the board
+   * @param {int} i - index of the clicked square
+   */
   handleClick(i) {
     // Create a copy of the array instead of getting the original one
     // this is done by the slice() method
@@ -86,21 +73,17 @@ class Game extends React.Component {
     const current = history[history.length-1];
     const squares = current.squares.slice();
 
-    // If the square is already filled or the match is finished, don't
-    // do anything
-    if (calculateWinner(squares) || squares[i]) {
-      return;
+    // Update the state if there is no winner yet and the square is not filled
+    if (!calculateWinner(squares) && !squares[i]) {
+      squares[i] = this.state.xIsNext ? 'X': 'O';
+      this.setState({
+        history: history.concat([{
+          squares: squares,
+        }]),
+        stepNumber: history.length,
+        xIsNext: !this.state.xIsNext,
+      });
     }
-
-    // Otherwise, update square and state of the component
-    squares[i] = this.state.xIsNext ? 'X': 'O';
-    this.setState({
-      history: history.concat([{
-        squares: squares,
-      }]),
-      stepNumber: history.length,
-      xIsNext: !this.state.xIsNext,
-    });
   }
 
   /**
