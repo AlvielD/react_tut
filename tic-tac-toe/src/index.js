@@ -54,6 +54,7 @@ class Game extends React.Component {
     this.state = {
       history: [{
         squares: Array(9).fill(null),
+        lastMove: null,
       }],
       stepNumber: 0,
       xIsNext: true,
@@ -79,6 +80,7 @@ class Game extends React.Component {
       this.setState({
         history: history.concat([{
           squares: squares,
+          lastMove: i,
         }]),
         stepNumber: history.length,
         xIsNext: !this.state.xIsNext,
@@ -106,7 +108,7 @@ class Game extends React.Component {
     
     const moves = history.map((step, move) => {
       const desc = move ?
-        `Go to move #${move}`:
+        `Go to move #${move} | (${Math.floor(step.lastMove / 3) + 1}, ${step.lastMove % 3 + 1})`:
         `Go to game start`;
       // Add key to the list item se we are able to recover them
       return (
