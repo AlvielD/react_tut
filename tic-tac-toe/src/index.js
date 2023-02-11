@@ -72,6 +72,7 @@ class Game extends React.Component {
       history: [{
         squares: Array(9).fill(null),
       }],
+      stepNumber: 0,
       xIsNext: true,
     };
   }
@@ -81,7 +82,7 @@ class Game extends React.Component {
     // Create a copy of the array instead of getting the original one
     // this is done by the slice() method
     // this is important because gives immutability to the component
-    const history = this.state.history;
+    const history = this.state.history.slice(0, this.state.stepNumber+1);
     const current = history[history.length-1];
     const squares = current.squares.slice();
 
@@ -97,21 +98,36 @@ class Game extends React.Component {
       history: history.concat([{
         squares: squares,
       }]),
+      stepNumber: history.length,
       xIsNext: !this.state.xIsNext,
+    });
+  }
+
+  /**
+   * The method set the state to a previous one. Recovers the board
+   * with the step associated to it and guess the player by determining
+   * if the step is even or odd.
+   * @param {int} step - the number representing the move we want to recover
+   */
+  jumpTo(step) {
+    this.setState({
+      stepNumber: step,
+      xIsNext: (step % 2) === 0,
     });
   }
 
   render() {
     const history = this.state.history;
-    const current = history[history.length-1];        // Current state of the game
+    const current = history[this.state.stepNumber];        // Current state of the game
     const winner = calculateWinner(current.squares);  // Calculate the winner on the current state
     
     const moves = history.map((step, move) => {
       const desc = move ?
         `Go to move #${move}`:
         `Go to game start`;
+      // Add key to the list item se we are able to recover them
       return (
-        <li>
+        <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
       );
