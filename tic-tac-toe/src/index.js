@@ -50,12 +50,14 @@ class Game extends React.Component {
     super(props);
     this.state = {
       history: [{
+        n_move: 0,
         squares: Array(9).fill(null),
         lastMove: null,
         boldDesc: false,
       }],
       stepNumber: 0,
       xIsNext: true,
+      listOrdering: "ascending",
     };
   }
 
@@ -75,15 +77,16 @@ class Game extends React.Component {
     // Update the state if there is no winner yet and the square is not filled
     if (!calculateWinner(squares) && !squares[i]) {
       squares[i] = this.state.xIsNext ? 'X': 'O';
-      this.setState({
+      this.setState(prevState => ({
         history: history.concat([{
+          n_move: history.length,
           squares: squares,
           lastMove: i,
           boldDesc: false,
         }]),
         stepNumber: history.length,
         xIsNext: !this.state.xIsNext,
-      });
+      }));
     }
   }
 
@@ -118,19 +121,25 @@ class Game extends React.Component {
   }
 
   render() {
-    const history = this.state.history;
-    const current = history[this.state.stepNumber];        // Current state of the game
+    let history = this.state.history;                 // History of movements
+    const current = history[this.state.stepNumber];   // Current state of the game
     const winner = calculateWinner(current.squares);  // Calculate the winner on the current state
     
-    const moves = history.map((step, move) => {
-      let desc = move ?
-        `Go to move #${move} | (${Math.floor(step.lastMove / 3) + 1}, ${step.lastMove % 3 + 1})`:
+    // Reverse history if needed
+    if (this.state.listOrdering == "descending") {
+      history = [...history].reverse();
+    }
+
+    // Get list of movements
+    const moves = history.map(step => {
+      let desc = step.n_move ?
+        `Go to move #${step.n_move} | (${Math.floor(step.lastMove / 3) + 1}, ${step.lastMove % 3 + 1})`:
         `Go to game start`;
-      // Add key to the list item se we are able to recover them
+      // Add key to the list item so we are able to recover them
       return (
-        <li key={move}>
+        <li key={step.n_move}>
           <button 
-            onClick={() => this.jumpTo(move)}
+            onClick={() => this.jumpTo(step.n_move)}
             style={{ fontWeight: step.boldDesc ? 'bold':'normal'}}
           >
             {desc}
@@ -140,6 +149,7 @@ class Game extends React.Component {
     });
     
     let status;
+    console.log(history);
 
     // If there is a winner, update status to the winner, otherwise
     // declare who is the next player to play
@@ -159,6 +169,23 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <input 
+            type='button'
+            onClick={() => {
+              // Change the value of the button depending on the current
+              // value.
+              let new_val = 'ascending';
+              if (this.state.listOrdering === "ascending") {
+                new_val = "descending"; 
+              }
+
+              this.setState({
+                ...this.state,
+                listOrdering: new_val
+              });
+            }}
+            value={`Switch to ${this.state.listOrdering} ordering`}
+          />
           <ol>{moves}</ol>
         </div>
       </div>
