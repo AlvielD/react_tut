@@ -6,7 +6,13 @@ import './index.css';
 // that only has a render method.
 function Square(props) {
   return (
-    <button className='square' onClick={props.onClick}>
+    <button 
+      className='square'
+      onClick={props.onClick}
+      style={{
+        backgroundColor: props.backgroundColor
+      }}
+    >
       {props.value}
     </button>
   );
@@ -14,12 +20,14 @@ function Square(props) {
   
 class Board extends React.Component {
 
-  renderSquare(i, key) {
+  renderSquare(i, color, key) {
+
     return (
       <Square
         key={key}
         value={this.props.squares[i]}
         onClick={() => this.props.onClick(i)}
+        backgroundColor={color}
       />
     )
   }
@@ -31,7 +39,16 @@ class Board extends React.Component {
     for (let i=0; i<3; i++) {
       let row = []
       for (let j=0; j<3; j++) {
-        row.push(this.renderSquare(i*3+j, `square-${i}-${j}`));
+
+        let square_ind = i*3+j;         // Index of the square in the board
+        let color = "white";  // Default color of the square
+
+        // Check if the selected square is part of the winner line
+        if (this.props.line && this.props.line.includes(square_ind)){
+          color = "green";
+        }
+
+        row.push(this.renderSquare(square_ind, color, `square-${i}-${j}`));
       }
       squares.push(<div key={`row-${i}`} className='board-row'>{row}</div>);
     }
@@ -116,8 +133,6 @@ class Game extends React.Component {
       stepNumber: step,
       xIsNext: (step % 2) === 0,
     });
-
-    console.log(this.state)
   }
 
   render() {
@@ -149,12 +164,11 @@ class Game extends React.Component {
     });
     
     let status;
-    console.log(history);
 
     // If there is a winner, update status to the winner, otherwise
     // declare who is the next player to play
     if (winner) {
-      status = `Winner: ${winner}`;
+      status = `Winner: ${winner.player}`;
     } else {
       status = `Next player: ${this.state.xIsNext ? 'X':'O'}`;
     }
@@ -164,6 +178,7 @@ class Game extends React.Component {
         <div className="game-board">
           <Board 
             squares={current.squares}
+            line={winner ? winner.line : null}
             onClick={(i) => this.handleClick(i)}
           />
         </div>
@@ -214,10 +229,12 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return {
+        "player": squares[a],
+        "line": lines[i]
+      }
     }
   }
-
   return null;
 }
   
