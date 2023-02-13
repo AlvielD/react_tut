@@ -40,8 +40,8 @@ class Board extends React.Component {
       let row = []
       for (let j=0; j<3; j++) {
 
-        let square_ind = i*3+j;         // Index of the square in the board
-        let color = "white";  // Default color of the square
+        let square_ind = i*3+j; // Index of the square in the board
+        let color = "white";    // Default color of the square
 
         // Check if the selected square is part of the winner line
         if (this.props.line && this.props.line.includes(square_ind)){
@@ -169,6 +169,8 @@ class Game extends React.Component {
     // declare who is the next player to play
     if (winner) {
       status = `Winner: ${winner.player}`;
+    } else if (!current.squares.includes(null)) {
+      status = 'The match is a draw';
     } else {
       status = `Next player: ${this.state.xIsNext ? 'X':'O'}`;
     }
